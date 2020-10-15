@@ -23,47 +23,11 @@ import random
 random.seed(9001)
 from random import randint
 import statistics
+print("Dependencies imported")
 
-__author__ = "Your Name"
-__copyright__ = "Universite Paris Diderot"
-__credits__ = ["Your Name"]
-__license__ = "GPL"
-__version__ = "1.0.0"
-__maintainer__ = "Your Name"
-__email__ = "your@email.fr"
-__status__ = "Developpement"
+print(os.getcwd())
 
-def isfile(path):
-    """Check if path is an existing file.
-      :Parameters:
-          path: Path to the file
-    """
-    if not os.path.isfile(path):
-        if os.path.isdir(path):
-            msg = "{0} is a directory".format(path)
-        else:
-            msg = "{0} does not exist.".format(path)
-        raise argparse.ArgumentTypeError(msg)
-    return path
-
-
-def get_arguments():
-    """Retrieves the arguments of the program.
-      Returns: An object that contains the arguments
-    """
-    # Parsing arguments
-    parser = argparse.ArgumentParser(description=__doc__, usage=
-                                     "{0} -h"
-                                     .format(sys.argv[0]))
-    parser.add_argument('-i', dest='fastq_file', type=isfile,
-                        required=True, help="Fastq file")
-    parser.add_argument('-k', dest='kmer_size', type=int,
-                        default=21, help="K-mer size (default 21)")
-    parser.add_argument('-o', dest='output_file', type=str,
-                        default=os.curdir + os.sep + "contigs.fasta",
-                        help="Output contigs in fasta file")
-    return(parser.parse_args())
-
+fq = "TCAGAGCTCTAGAGTTGGTTCTGAGAGAGATCGGTTACTCGGAGGAGGCTGTGTCACTCATAGAAGGGATCAATCACACCCACCACGTGTACCGAAACAA"
 
 def read_fastq(fichier):
     global seq
@@ -83,18 +47,26 @@ def read_fastq(fichier):
     return(seq)
 
 
+# read_fastq(fq)
+# print(seq)
+
 def cut_kmer(sequence, k):
     global kmers
     kmers = []
     l = k
-    
+    iii = []
+    m = 0
+
     for i,j in enumerate(sequence):
         if i == k-1:
-            iii = sequence[i-2] + sequence[i-1] + sequence[i]
+            for m in range(1,l):
+                iii = sequence[i-(l-m)]
             kmers.append(iii)
             k += l
+    print(kmers)
     return(kmers)
 
+cut_kmer(fq, 3)
 
 def build_kmer_dict(fichier, k):
     print("k = {}".format(k))
@@ -109,21 +81,16 @@ def build_kmer_dict(fichier, k):
     for sublist in liste:
         for val in sublist:
             flattened.append(val)
-    
+    # print(flattened)
     dico = {i:flattened.count(i) for i in flattened}
     print(dico)
     return(dico)
     
 
-#==============================================================
-# Main program
-#==============================================================
-def main():
-    """
-    Main program function
-    """
-    args = get_arguments()
-    build_kmer_dict(str(args["-i"]), int(args["-k"]))
+# def build_graph(dic):
+    
 
-if __name__ == '__main__':
-    main()
+
+# if __name__ == '__main__':
+    # build_kmer_dict(sys.argv[1], int(sys.argv[2]))
+
