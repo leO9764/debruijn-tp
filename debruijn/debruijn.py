@@ -85,7 +85,7 @@ def build_kmer_dict(fichier, k) :
     prend un fichier fastq, une taille k- mer et retourne un dictionnaire 
     ayant pour clé le k-mer et pour valeur le nombre d’occurrence de ce k-mer
     """
-    print("k = {}".format(k))
+    print("k-mer size : {}".format(k))
     global dico
     dico = {}
     
@@ -95,7 +95,7 @@ def build_kmer_dict(fichier, k) :
                 dico[j] += 1
             else :
                 dico[j] = 1           
-    print("build_kmer_dict ok")
+    print("build_kmer_dict done")
     return(dico)
     
 
@@ -108,7 +108,7 @@ def build_graph(dic) :
     
     for i in dic :
         tree.add_edge(i[:-1], i[1:], weight = dico[i])
-    print("build_graph ok")
+    print("build_graph done")
     return tree
 
 
@@ -120,7 +120,7 @@ def get_starting_nodes(tree) :
     for i in tree.nodes:
         if len(list(tree.predecessors(i))) == 0 :
             starting_node.append(i)
-    print("get_starting_nodes ok")
+    print("get_starting_nodes done")
     return starting_node
 
 
@@ -133,7 +133,7 @@ def get_sink_nodes(tree) :
     for node in tree.nodes :
         if len(list(tree.successors(node))) == 0 :
             sink_nodes.append(node)
-    print("get_sink_nodes ok")
+    print("get_sink_nodes done")
     return sink_nodes
 
 
@@ -156,7 +156,7 @@ def get_contigs(tree, start, sink) :
                     else :
                         c += kmer[-1]
                 contigs_list.append((c, len(c)))
-    print("get_contigs ok")
+    print("get_contigs done")
     return contigs_list
 
 
@@ -171,12 +171,12 @@ def save_contigs(contig_list, contig_filename) :
         for i, j in enumerate(contig_list) :
             filout.write(f">contig_{i} len={j[1]}\n")
             filout.write(fill(j[0]) + "\n")
-    print("save_contigs ok")
+    print("save_contigs done")
 
 
 def fill(text, width = 80) :
     """Split text with a line return to respect fasta format"""
-    print("fill ok")
+    print("fill done")
     return os.linesep.join(text[i:i+width] for i in range(0, len(text), width))
 
 
@@ -184,7 +184,7 @@ def std(liste : list) :
     """
     prend une liste de valeur, qui retourne l’écart type
     """
-    print("std ok")
+    print("std done")
     return statistics.stdev(liste)
 
 
@@ -198,7 +198,7 @@ def path_average_weight(tree, path) :
     
     for i in range(len(path) - 1) :
         weight += tree.edges[path[i], path[i+1]]["weight"]
-    print("path ok")
+    print("path done")
     return weight / (len(path) - 1)
 
 
@@ -217,7 +217,7 @@ def remove_paths(tree, path_list, delete_entry_node, delete_sink_node) :
             tree.remove_node(path[0])
         if delete_sink_node :
             tree.remove_node(path[-1])
-    print("remove_paths ok")
+    print("remove_paths done")
     return tree
 
 
@@ -261,7 +261,7 @@ def select_best_path(tree, path_list, path_length, path_weight, delete_entry_nod
             wrong_paths.append(i)
 
     tree = remove_paths(tree, wrong_paths, delete_entry_node, delete_sink_node)
-    print("select_best_path ok")
+    print("select_best_path done")
     return tree
 
 
@@ -282,7 +282,7 @@ def solve_bubble(tree, a, d) :
         path_weight.append(path_average_weight(tree, i))
 
     tree = select_best_path(tree, liste, path_length, path_weight, delete_entry_node = False, delete_sink_node = False)
-    print("solve_bubble ok")
+    print("solve_bubble done")
     return tree
 
 
@@ -303,7 +303,7 @@ def simplify_bubbles(tree) :
 
     for i in wrong_nodes :
         tree = solve_bubble(tree, i[0], i[1])
-    print("simplify_bubbles ok")
+    print("simplify_bubbles done")
     return tree
 
 
@@ -332,7 +332,7 @@ def solve_entry_tips(tree, entry) :
                     path_weight.append(path_average_weight(tree, l))
 
         tree = select_best_path(tree, paths_list, path_length, path_weight, delete_entry_node = True, delete_sink_node = False)
-        print("solve_entry_tips ok")
+        print("solve_entry_tips done")
     return tree
 
 
@@ -342,26 +342,26 @@ def solve_out_tips(tree, entry) :
     graphe sans chemin de sortie indésirable
     """
     
-    descendants = []
+    des = []
     
     for i in entry :
         for j in nx.ancestors(tree, i) :
-            if len(tree.succ[j]) >= 2 and j not in descendants :
-                descendants.append(j)
+            if len(tree.succ[j]) >= 2 and j not in des :
+                des.append(j)
 
     paths_list = []
     path_length = []
     path_weight = []
 
     for i in entry :
-        for j in descendants :
+        for j in des :
             for path in nx.all_simple_paths(tree, j, i) :
                     paths_list.append(path)
                     path_length.append(len(path))
                     path_weight.append(path_average_weight(tree, path))
 
         tree = select_best_path(tree, paths_list, path_length, path_weight, delete_entry_node = False, delete_sink_node = True)
-        print("solve_out_tips ok")
+        print("solve_out_tips done")
     return tree
 
 
@@ -377,7 +377,7 @@ def main() :
     sink_nodes = get_sink_nodes(G)
     contig_list = get_contigs(G, start_nodes, sink_nodes)
     save_contigs(contig_list, args.output_file)
-    print("main ok")
+    print("main done")
 
 
 
